@@ -95,6 +95,22 @@ DynamoDB no necesita más cambios, porque `PAY_PER_REQUEST` ya absorbe el crecim
 
 > Ojo: la replicación de S3 solo copia los objetos **nuevos**. Para copiar los que ya existían habría que usar S3 Batch Replication.
 
+### Resultado del despliegue (2026-10-08)
+
+**Versión base** (9 min):
+- Las tablas del catálogo se crearon solas con los datos de ejemplo.
+- RDS no tiene IP pública: su endpoint resuelve a `10.0.2.x` y no se puede conectar desde internet.
+- DynamoDB aceptó órdenes con atributos distintos. Respondieron tanto la consulta por `customerId` como la búsqueda por `orderId` con el índice.
+- El EBS de 10 GB quedó cifrado y montado en `/mnt/orders-tmp`.
+
+**Boss Fight** (`cdk diff` con change set: 2 modificaciones, solo altas, 0 reemplazos):
+- La EC2, la RDS principal, el bucket y la tabla conservan sus IDs y fechas de creación.
+- **Stream:** la Lambda registró un `INSERT` (orden nueva) y un `MODIFY` (cambio de `PENDING` a `SHIPPED`) a los pocos segundos.
+- **Read replica:** devuelve el mismo catálogo. `pg_is_in_recovery()` vale `t` y rechaza las escrituras (`cannot execute UPDATE in a read-only transaction`). Tampoco tiene IP pública.
+- **Replicación:** una imagen nueva llegó a us-west-2 con `ReplicationStatus: COMPLETED`. La imagen subida antes de activar la replicación no se copió, como era de esperar.
+
+> **Capacidad de RDS:** el primer intento con `db.t4g.micro` falló porque no había capacidad para esa clase con gp3 en us-east-1a/1b. Antes de elegir una clase, conviene revisar en qué zonas se puede crear: `aws rds describe-orderable-db-instance-options --engine postgres --engine-version 18.3 --db-instance-class <clase>`.
+
 ## Verificar los criterios de éxito
 
 ```bash
