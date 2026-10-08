@@ -110,7 +110,8 @@ export class StoreBackendStack extends cdk.Stack {
     dbSg.addIngressRule(processorSg, ec2.Port.tcp(5432), 'PostgreSQL desde la EC2 de procesamiento');
 
     const dbSubnets = { subnetType: ec2.SubnetType.PRIVATE_ISOLATED };
-    const dbInstanceType = ec2.InstanceType.of(ec2.InstanceClass.T4G, ec2.InstanceSize.MICRO);
+    // t3 y no t4g: en us-east-1a/1b no había capacidad de db.t4g.micro + gp3 para Postgres 18 (2026-10-08).
+    const dbInstanceType = ec2.InstanceType.of(ec2.InstanceClass.T3, ec2.InstanceSize.MICRO);
 
     const database = new rds.DatabaseInstance(this, 'CatalogDb', {
       engine: rds.DatabaseInstanceEngine.postgres({ version: rds.PostgresEngineVersion.VER_18_3 }),

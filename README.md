@@ -150,7 +150,7 @@ aws s3 ls s3://lab4-product-images-replica-<cuenta>-us-west-2/products/ --region
 
 | Recurso | Costo |
 |---|---|
-| 2 RDS `db.t4g.micro` | ~0,016 USD/h cada una |
+| 2 RDS `db.t3.micro` | ~0,018 USD/h cada una |
 | EC2 `t3.micro` | ~0,0104 USD/h |
 | IPv4 pública | 0,005 USD/h |
 | Secrets Manager | 0,40 USD/mes |
