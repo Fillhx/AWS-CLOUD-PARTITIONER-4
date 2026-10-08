@@ -1,5 +1,5 @@
 {
-  "app": "npx tsc && npx tsx bin/lab4.ts",
+  "app": "npx tsc && npx tsx bin/store.ts",
   "watch": {
     "include": [
       "**"
